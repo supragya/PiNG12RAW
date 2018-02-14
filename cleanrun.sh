@@ -1,0 +1,2 @@
+rm results/*
+./a.out

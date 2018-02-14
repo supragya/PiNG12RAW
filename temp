@@ -1,0 +1,77 @@
+for(y=0;y< width*height/2; y++){
+  red = green1 = green2 = blue = 0;
+
+  //Extraction of first 8 bits [RG]
+  pFile.read((char*)&eightbits, sizeof(uint8_t));
+  for(int k=0;k<4;k++){
+    red = red<<1 | (eightbits&1);
+    eightbits /= 2;
+    green1 = green1<<1 | (eightbits&1);
+    eightbits /= 2;
+  }
+
+  //Extraction of second 8 bits [RG|GB]
+  pFile.read((char*)&eightbits, sizeof(uint8_t));
+  for(int k=0;k<4;k++){
+    red = red<<1 | (eightbits&1);
+    eightbits /= 2;
+    green1 = green1<<1 | (eightbits&1);
+    eightbits /= 2;
+  }
+  for(int k=0;k<4;k++){
+    green2 = green2<<1 | (eightbits&1);
+    eightbits /= 2;
+    blue = blue<<1 | (eightbits&1);
+    eightbits /= 2;
+  }
+
+  //Extraction of third 8 bits [GB]
+  pFile.read((char*)&eightbits, sizeof(uint8_t));
+  for(int k=0;k<4;k++){
+    green2 = green2<<1 | (eightbits&1);
+    eightbits /= 2;
+    blue = blue<<1 | (eightbits&1);
+    eightbits /= 2;
+  }
+
+  //std::cout<<(int)red<<" \t "<<(int)green1<<" \t "<<(int)green2<<" \t "<<(int)blue<<'\n'<<std::endl;
+
+  int row = (y/(width));
+  int col = (y%(width));
+
+  //std::cout<<"Working pixel TL:"<<row<<" "<<col<<" "<<int(red)<<std::endl;
+
+      workingcell = 4*((row)*width+(col));
+      imagered[workingcell + 0] = (int)(red);
+      imagered[workingcell + 1] = 0;
+      imagered[workingcell + 2] = 0;
+      imagered[workingcell + 3] = 255;
+  // for(int a=0;a<2;a++){
+  //   for(int b=0;b<2;b++){
+  //     workingcell = 4*((row+b)*width+col+a);
+      imagegreen1[workingcell + 0] = 0;
+      imagegreen1[workingcell + 1] = (int)(green1) ;
+      imagegreen1[workingcell + 2] = 0;
+      imagegreen1[workingcell + 3] = 255;
+  //   }
+  // }
+  // for(int a=0;a<2;a++){
+  //   for(int b=0;b<2;b++){
+  //     workingcell = 4*((row+b)*width+col+a);
+      imagegreen2[workingcell + 0] = 0;
+      imagegreen2[workingcell + 1] = (int)(green2) ;
+      imagegreen2[workingcell + 2] = 0;
+      imagegreen2[workingcell + 3] = 255;
+  //   }
+  // }
+  // for(int a=0;a<2;a++){
+  //   for(int b=0;b<2;b++){
+  //     workingcell = 4*((row+b)*width+col+a);
+  //     imageblue[workingcell + 0] = 0;
+  //     imageblue[workingcell + 1] = 0;
+  //     imageblue[workingcell + 2] = (a==1&&b==1) ? (int)(blue) : 0;;
+  //     imageblue[workingcell + 3] = 255;
+  //   }
+  // }
+
+}
