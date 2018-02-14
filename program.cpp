@@ -5,6 +5,8 @@
 #include <fstream>
 #include "LodePNG/lodepng.h"
 
+const int DIVIDING_FACTOR = 4;
+
 void encodeOneStep(const char* filename, std::vector<unsigned char>& image, unsigned width, unsigned height)
 {
   unsigned error = lodepng::encode(filename, image, width, height);
@@ -12,11 +14,11 @@ void encodeOneStep(const char* filename, std::vector<unsigned char>& image, unsi
 }
 
 int main(){
-    std::cout<<"Working"<<std::endl;
+    std::cout<<"PiNG12RAW Working... "<<std::endl;
 
     std::ifstream pFile ("test_image/test.raw12", std::ios::binary|std::ios::in);
     if (!pFile){
-      std::cout<<"Cannot open raw image file, exitiing."<<std::endl;
+      std::cout<<"Cannot open raw image file, exiting."<<std::endl;
       exit(-1);
     }
 
@@ -29,13 +31,18 @@ int main(){
     imagegreen2.resize(width * height * 4);
     imageblue.resize(width * height * 4);
 
+    std::vector<unsigned char> imageredgr, imagegreen1gr, imagegreen2gr, imagebluegr;
+    imageredgr.resize(width * height);
+    imagegreen1gr.resize(width * height);
+    imagegreen2gr.resize(width * height);
+    imagebluegr.resize(width * height);
+
     uint8_t eightbits[3];
     uint16_t left,right;
 
-    uint16_t left16bit, right16bit;
     uint8_t left8bit, right8bit;
 
-    int maxred = 0, minred = 65535;
+    // int maxred = 0, minred = 65535;
 
     for(unsigned int row = 0; row < height; row++){
       for(unsigned int col = 0; col < width/2; col++ ){
@@ -56,12 +63,10 @@ int main(){
         }
 
         //Find the bit values
-        left16bit = left8bit = right16bit = right8bit = 0;
+        left8bit = right8bit = 0;
 
-        left16bit = (left*16);
-        right16bit = (right*16);
-        left8bit = left;
-        right8bit = right;
+        left8bit = left/DIVIDING_FACTOR;
+        right8bit = right/DIVIDING_FACTOR;
 
 
         //Set the values
@@ -80,8 +85,9 @@ int main(){
           imagered[4*(i*width+j*2+1) + 2] = 0;
           imagered[4*(i*width+j*2+1) + 3] = 255;
 
-          maxred = (maxred<(int)left8bit)? (int)left8bit : maxred;
-          minred = (minred>(int)left8bit)? (int)left8bit : minred;
+          for(int k=0;k<3;k++)
+            imageredgr[4*((row/2)*width/2 +j) + k] = (int)left8bit;
+          imageredgr[4*((row/2)*width/2 +j) + 3] = 255;
 
           imagegreen1[4*(i*width+j*2) + 0] = 0;
           imagegreen1[4*(i*width+j*2) + 1] = 0;
@@ -91,6 +97,10 @@ int main(){
           imagegreen1[4*(i*width+j*2+1) + 1] = (int)right8bit;
           imagegreen1[4*(i*width+j*2+1) + 2] = 0;
           imagegreen1[4*(i*width+j*2+1) + 3] = 255;
+
+          for(int k=0;k<3;k++)
+            imagegreen1gr[4*((row/2)*width/2 +j) + k] = (int)right8bit;
+          imagegreen1gr[4*((row/2)*width/2 +j) + 3] = 255;
 
           imagegreen2[4*(i*width+j*2) + 0] = 0;
           imagegreen2[4*(i*width+j*2) + 1] = 0;
@@ -138,6 +148,10 @@ int main(){
           imagegreen2[4*(i*width+j*2+1) + 2] = 0;
           imagegreen2[4*(i*width+j*2+1) + 3] = 255;
 
+          for(int k=0;k<3;k++)
+            imagegreen2gr[4*((row/2)*width/2 +j) + k] = (int)left8bit;
+          imagegreen2gr[4*((row/2)*width/2 +j) + 3] = 255;
+
           imageblue[4*(i*width+j*2) + 0] = 0;
           imageblue[4*(i*width+j*2) + 1] = 0;
           imageblue[4*(i*width+j*2) + 2] = 0;
@@ -146,6 +160,10 @@ int main(){
           imageblue[4*(i*width+j*2+1) + 1] = 0;
           imageblue[4*(i*width+j*2+1) + 2] = (int)right8bit;
           imageblue[4*(i*width+j*2+1) + 3] = 255;
+
+          for(int k=0;k<3;k++)
+            imagebluegr[4*((row/2)*width/2 +j) + k] = (int)right8bit;
+          imagebluegr[4*((row/2)*width/2 +j) + 3] = 255;
         }
       }
     }
@@ -156,8 +174,12 @@ encodeOneStep("results/r.png", imagered, width, height);
 encodeOneStep("results/g1.png", imagegreen1, width, height);
 encodeOneStep("results/g2.png", imagegreen2, width, height);
 encodeOneStep("results/b.png", imageblue, width, height);
-std::cout<<"Maxred: "<<maxred<<" Minred: "<<minred<<" done"<<std::endl;
-
+encodeOneStep("results/r_grayscale.png", imageredgr, width/2, height/2);
+encodeOneStep("results/g1_grayscale.png", imagegreen1gr, width/2, height/2);
+encodeOneStep("results/g2_grayscale.png", imagegreen2gr, width/2, height/2);
+encodeOneStep("results/b_grayscale.png", imagebluegr, width/2, height/2);
+//std::cout<<"Maxred: "<<maxred<<" Minred: "<<minred<<" done"<<std::endl;
+std::cout<<"done. Check [results] folder for new imgs."<<std::endl;
 
 pFile.close();
 
