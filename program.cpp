@@ -10,6 +10,14 @@
 #include <fstream>
 #include "LodePNG/lodepng.h"
 
+typedef enum DebayeringAlgorithm
+{
+    NEAREST,
+    LINEAR,         //TODO
+    BILINEAR,       //TODO
+    CUBIC           //TODO
+} DebayeringAlgorithm;
+
 // Dictates how many LSBs are lost while conversion from 12bit input to the final outputs
 // Generally for 12 bit input has to be converted to 8 bit output. right shift = 4 while left shift = 0
 // NOTE: code not extended for 16bit outputs
@@ -32,7 +40,7 @@ const int HEIGHT = 3072;
 //      height:     height of the image to save
 // Returns:
 //      NA
-void savePNGtoDisk(const char* filename, std::vector<unsigned char>& image, unsigned width, unsigned height);
+void savePNGtoDisk(const char* filename, std::vector<unsigned char>& image, unsigned width, unsigned height, LodePNGColorType type);
 
 // Extracts a debayered image from RGGB channel (grayscale)
 // Parameters:
@@ -42,13 +50,15 @@ void savePNGtoDisk(const char* filename, std::vector<unsigned char>& image, unsi
 //      b:      grayscale RGBA image vector for B channel
 //      c_width:  width of the channel
 //      c_height: height of the channel
+//      algo:   algorithm to utilize while debayering
 // Returns:
 //      vector<unsigned char> result: result image(debayered)
 std::vector<unsigned char> debayer_using_channels(std::vector<unsigned char> r,
                                                 std::vector<unsigned char> g1,
                                                 std::vector<unsigned char> g2,
                                                 std::vector<unsigned char> b,
-                                                unsigned int width, unsigned int height);
+                                                unsigned int c_width, unsigned int c_height,
+                                                DebayeringAlgorithm algo);
 
 
 int main(){
@@ -64,10 +74,10 @@ int main(){
     }
 
     std::vector<unsigned char> imageredgr, imagegreen1gr, imagegreen2gr, imagebluegr;
-    imageredgr.resize(WIDTH * HEIGHT);
-    imagegreen1gr.resize(WIDTH * HEIGHT);
-    imagegreen2gr.resize(WIDTH * HEIGHT);
-    imagebluegr.resize(WIDTH * HEIGHT);
+    imageredgr.resize(WIDTH * HEIGHT / 4);
+    imagegreen1gr.resize(WIDTH * HEIGHT / 4);
+    imagegreen2gr.resize(WIDTH * HEIGHT / 4);
+    imagebluegr.resize(WIDTH * HEIGHT / 4);
 
     uint8_t eightbits[3];
     uint16_t left,right;
@@ -98,32 +108,21 @@ int main(){
         //on the even lines every second sample is a 'red' and on the odd lines every second a 'blue'
 
         if(row%2 == 0){
-          for(int k=0; k<3; k++){
-            imageredgr[4*((row/2)*WIDTH/2 + col) + k] = (int)left8bit;
-            imagegreen1gr[4*((row/2)*WIDTH/2 + col) + k] = (int)right8bit;
-          }
-          imageredgr[4*((row/2)*WIDTH/2 + col) + 3] = 255;
-          imagegreen1gr[4*((row/2)*WIDTH/2 + col) + 3] = 255;
+            imageredgr[((row/2)*WIDTH/2 + col)] = (int)left8bit;
+            imagegreen1gr[((row/2)*WIDTH/2 + col)] = (int)right8bit;
         }
         else{
-          for(int k=0;k<3;k++){
-            imagegreen2gr[4*((row/2)*WIDTH/2 + col) + k] = (int)left8bit;
-            imagebluegr[4*((row/2)*WIDTH/2 + col) + k] = (int)right8bit;
-          }
-          imagegreen2gr[4*((row/2)*WIDTH/2 + col) + 3] = 255;
-          imagebluegr[4*((row/2)*WIDTH/2 + col) + 3] = 255;
+            imagegreen2gr[((row/2)*WIDTH/2 + col)] = (int)left8bit;
+            imagebluegr[((row/2)*WIDTH/2 + col)] = (int)right8bit;
         }
-
-
-
     }
 }
-savePNGtoDisk("results/r_grayscale.png", imageredgr, WIDTH/2, HEIGHT/2);
-savePNGtoDisk("results/g1_grayscale.png", imagegreen1gr, WIDTH/2, HEIGHT/2);
-savePNGtoDisk("results/g2_grayscale.png", imagegreen2gr, WIDTH/2, HEIGHT/2);
-savePNGtoDisk("results/b_grayscale.png", imagebluegr, WIDTH/2, HEIGHT/2);
-std::vector<unsigned char> debayeredimg = debayer_using_channels(imageredgr,imagegreen1gr,imagegreen2gr,imagebluegr, WIDTH/2, HEIGHT/2);
-savePNGtoDisk("results/debayeredimg.png", debayeredimg, WIDTH, HEIGHT);
+savePNGtoDisk("results/r_grayscale.png", imageredgr, WIDTH/2, HEIGHT/2, LCT_GREY);
+savePNGtoDisk("results/g1_grayscale.png", imagegreen1gr, WIDTH/2, HEIGHT/2, LCT_GREY);
+savePNGtoDisk("results/g2_grayscale.png", imagegreen2gr, WIDTH/2, HEIGHT/2, LCT_GREY);
+savePNGtoDisk("results/b_grayscale.png", imagebluegr, WIDTH/2, HEIGHT/2, LCT_GREY);
+std::vector<unsigned char> debayeredimg = debayer_using_channels(imageredgr,imagegreen1gr,imagegreen2gr,imagebluegr, WIDTH/2, HEIGHT/2, NEAREST);
+savePNGtoDisk("results/debayeredimg_nearest.png", debayeredimg, WIDTH, HEIGHT, LCT_RGB);
 std::cout<<"done. Check [results] folder for new imgs."<<std::endl;
 
 pFile.close();
@@ -131,9 +130,9 @@ pFile.close();
 return 0;
 }
 
-void savePNGtoDisk(const char* filename, std::vector<unsigned char>& image, unsigned width, unsigned height)
+void savePNGtoDisk(const char* filename, std::vector<unsigned char>& image, unsigned width, unsigned height, LodePNGColorType type)
 {
-    unsigned int error = lodepng::encode(filename, image, width, height);
+    unsigned int error = lodepng::encode(filename, image, width, height, type);
     if(error)
         std::cout << "LodePNG encoder: Error occured while generating ["<<filename<<"] "<< error << ": "<< lodepng_error_text(error) << std::endl;
     else
@@ -143,23 +142,35 @@ std::vector<unsigned char> debayer_using_channels(std::vector<unsigned char> r,
                                                 std::vector<unsigned char> g1,
                                                 std::vector<unsigned char> g2,
                                                 std::vector<unsigned char> b,
-                                                unsigned int c_width, unsigned int c_height){
+                                                unsigned int c_width, unsigned int c_height,
+                                                DebayeringAlgorithm algo = SIMPLE_LINEAR){
 
     // Demarcation: op_width and op_height represent the output image (RGB) height and widht while c_width and c_height represent channel width and height
     unsigned int op_height = c_height*2;
     unsigned int op_width = c_width*2;
 
     std::vector<unsigned char> result;
-    result.resize(4*(op_width)*(op_height));
+    result.resize(3*(op_width)*(op_height));
 
-    // Simple interpolation
-    for(unsigned int i=0; i<op_height; i++){
-        for(unsigned int j=0; j<op_width; j++){
-            result[4*(i*op_width+j) + 0] = r[4*((i/2)*c_width+(j/2)) + 0];
-            result[4*(i*op_width+j) + 1] = (g1[4*((i/2)*c_width+(j/2)) + 0] + g2[4*((i/2)*c_width+(j/2)) + 0])/2;
-            result[4*(i*op_width+j) + 2] = b[4*((i/2)*c_width+(j/2)) + 0];
-            result[4*(i*op_width+j) + 3] = 255;
+    switch (algo) {
+
+        case NEAREST:
+            for(unsigned int i=0; i<op_height; i++){
+                for(unsigned int j=0; j<op_width; j++){
+                    result[3*(i*op_width+j) + 0] = r[((i/2)*c_width+(j/2)) + 0];
+                    result[3*(i*op_width+j) + 1] = (g1[((i/2)*c_width+(j/2)) + 0] + g2[((i/2)*c_width+(j/2)) + 0])/2;
+                    result[3*(i*op_width+j) + 2] = b[((i/2)*c_width+(j/2)) + 0];
+                }
+            }
+            break;
+
+        case LINEAR:
+        for(unsigned int i=0; i<op_height; i++){
+            for(unsigned int j=0; j<op_width; j++){
+
+            }
         }
-    }
+        break;
+    };
     return result;
 }
