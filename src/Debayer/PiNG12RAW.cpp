@@ -25,7 +25,7 @@ Debayer::DebayerContainer::DebayerContainer(const char* inputfilename, unsigned 
     inputfile.read(inputbuffer, width*height*sizeof(uint8_t)*3/2);
     inputfile.close();
 
-    tempstr = (char*)malloc(sizeof(char)*MAXTEMPSTRLEN);
+    tempstr = new char[MAXTEMPSTRLEN];
 }
 
 int Debayer::DebayerContainer::ComputeChannels() {
@@ -49,14 +49,14 @@ int Debayer::DebayerContainer::ComputeChannels() {
     }
 }
 
-int Debayer::DebayerContainer::WriteChannels(char *fileprefix) {
+int Debayer::DebayerContainer::WriteChannels(const char *fileprefix) {
     return  lodepng::encode(augmented(fileprefix, RED), imageredgr,    width/2, height/2, LCT_GREY) |
             lodepng::encode(augmented(fileprefix, GR1), imagegreen1gr, width/2, height/2, LCT_GREY) |
             lodepng::encode(augmented(fileprefix, GR2), imagegreen2gr, width/2, height/2, LCT_GREY) |
             lodepng::encode(augmented(fileprefix, BLU), imagebluegr,   width/2, height/2, LCT_GREY);
 }
 
-int Debayer::DebayerContainer::WriteColored(char *filename, DebayeringAlgorithm alg) {
+int Debayer::DebayerContainer::WriteColored(const char *filename, DebayeringAlgorithm alg) {
     std::vector<unsigned char> result;
     result.resize(3*(width)*(height));
 
@@ -78,7 +78,7 @@ int Debayer::DebayerContainer::WriteColored(char *filename, DebayeringAlgorithm 
     return  lodepng::encode(filename, result, width, height, LCT_RGB);
 }
 
-char* Debayer::DebayerContainer::augmented(char *prefix, Channel ch)    {
+char* Debayer::DebayerContainer::augmented(const char *prefix, Channel ch)    {
     strcpy(tempstr, prefix);
     switch (ch){
         case RED: strcat(tempstr, "red.png"); break;
@@ -90,6 +90,6 @@ char* Debayer::DebayerContainer::augmented(char *prefix, Channel ch)    {
 }
 
 Debayer::DebayerContainer::~DebayerContainer(){
-    free(tempstr);
+    delete tempstr;
     free(inputbuffer);
 }

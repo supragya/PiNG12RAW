@@ -35,13 +35,13 @@ namespace Debayer{
         unsigned int    height;
         char*           tempstr;
         std::vector<unsigned char> imageredgr, imagegreen1gr, imagegreen2gr, imagebluegr;
-        char* augmented(char* filename, Channel ch);
+        char* augmented(const char* filename, Channel ch);
     public:
         DebayerContainer(const char* inputfilename, unsigned int width, unsigned int height);
         ~DebayerContainer();
         int ComputeChannels();
-        int WriteChannels(char* fileprefix);
-        int WriteColored(char* filename, DebayeringAlgorithm alg);
+        int WriteChannels(const char* fileprefix);
+        int WriteColored(const char* filename, DebayeringAlgorithm alg);
     };
 }
 
