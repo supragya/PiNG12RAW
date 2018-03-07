@@ -15,33 +15,38 @@
 
 #define MAXTEMPSTRLEN 200
 
-namespace Debayer{
-    enum DebayeringAlgorithm
-    {
+namespace Debayer {
+    enum DebayeringAlgorithm {
         NEAREST
     };
 
-    enum Channel{
+    enum Channel {
         RED,
         GR1,
         GR2,
         BLU
     };
 
-    class DebayerContainer{
-        std::ifstream   inputfile;
-        char*           inputbuffer;
-        unsigned int    width;
-        unsigned int    height;
-        char*           tempstr;
+    class DebayerContainer {
+        std::ifstream inputfile;
+        char *inputbuffer;
+        unsigned int width;
+        unsigned int height;
+        char *tempstr;
         std::vector<unsigned char> imageredgr, imagegreen1gr, imagegreen2gr, imagebluegr;
-        char* augmented(const char* filename, Channel ch);
+
+        char *augmented(const char *filename, Channel ch);
+
     public:
-        DebayerContainer(const char* inputfilename, unsigned int width, unsigned int height);
+        DebayerContainer(const char *inputfilename, unsigned int width, unsigned int height);
+
         ~DebayerContainer();
+
         int ComputeChannels();
-        int WriteChannels(const char* fileprefix);
-        int WriteColored(const char* filename, DebayeringAlgorithm alg);
+
+        int WriteChannels(const char *fileprefix);
+
+        int WriteColored(const char *filename, DebayeringAlgorithm alg);
     };
 }
 

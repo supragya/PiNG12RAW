@@ -16,7 +16,7 @@ const char NEAREST_RESULT[] = "results/NearestDebayer.png";
 const int WIDTH = 4096;
 const int HEIGHT = 3072;
 
-int main(){
+int main() {
     Debayer::DebayerContainer container(INPUT_FILE, WIDTH, HEIGHT);
     container.ComputeChannels();
     container.WriteChannels(RESULT_CHANNELS);
