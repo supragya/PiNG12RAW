@@ -33,7 +33,7 @@ int Debayer::DebayerContainer::ComputeChannels() {
 
     for(unsigned int readptr = 0; readptr < width*height*3/2; readptr += 3 ) {
         row = (readptr*2/3)/width ;
-        col = (readptr/3)*2 - width*row ;
+        col = (readptr*2/3) - width*row ;
         if(row % 2 == 0){
             row = row / 2;
             col = col / 2;
