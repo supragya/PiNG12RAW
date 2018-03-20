@@ -17,7 +17,7 @@
 
 namespace Debayer {
     enum DebayeringAlgorithm {
-        NEAREST
+        LINEAR
     };
 
     enum Channel {
@@ -29,11 +29,11 @@ namespace Debayer {
 
     class DebayerContainer {
         std::ifstream inputfile;
-        char *inputbuffer;
+        char *iBuf;
         unsigned int width;
         unsigned int height;
         char *tempstr;
-        std::vector<unsigned char> imageredgr, imagegreen1gr, imagegreen2gr, imagebluegr;
+        std::vector<unsigned char> red_Gr, grn1Gr, grn2Gr, blueGr;
 
         char *augmented(const char *filename, Channel ch);
 
