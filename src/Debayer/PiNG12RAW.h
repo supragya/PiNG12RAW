@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <stdlib.h>
 #include <vector>
 #include "LodePNG/lodepng.h"
 

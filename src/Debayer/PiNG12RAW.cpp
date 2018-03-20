@@ -19,7 +19,8 @@ Debayer::DebayerContainer::DebayerContainer(const char *inputfilename, unsigned 
 
     inputfile.open(inputfilename, std::ios::binary);
     if (!inputfile) {
-        std::cerr << "Error: Cannot open input file" << std::endl;
+        std::cerr << "Error: Cannot open input file, exiting now!" << std::endl;
+        exit(1);
     }
     iBuf = new char[width * height * 3 / 2];
     inputfile.read(iBuf, width * height * 3 / 2);
