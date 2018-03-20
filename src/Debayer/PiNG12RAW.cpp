@@ -32,6 +32,7 @@ int Debayer::DebayerContainer::ComputeChannels() {
     int row, col;
     int iOff;
     int runCount = width * height * 3 / 2;
+
     for (unsigned int rPtr = 0; rPtr < runCount; rPtr += 3) {
         row = (rPtr * 2 / 3) / width;
         col = (rPtr * 2 / 3) - width * row;
@@ -57,9 +58,10 @@ int Debayer::DebayerContainer::ComputeChannels() {
 int Debayer::DebayerContainer::WriteChannels(const char *fileprefix) {
     int w = width / 2;
     int h = height / 2;
-    return lodepng::encode(augmented(fileprefix, RED), red_Gr, w, h, LCT_GREY) |
-           lodepng::encode(augmented(fileprefix, GR1), grn1Gr, w, h, LCT_GREY) |
-           lodepng::encode(augmented(fileprefix, GR2), grn2Gr, w, h, LCT_GREY) |
+
+    return lodepng::encode(augmented(fileprefix, RED), red_Gr, w, h, LCT_GREY) ||
+           lodepng::encode(augmented(fileprefix, GR1), grn1Gr, w, h, LCT_GREY) ||
+           lodepng::encode(augmented(fileprefix, GR2), grn2Gr, w, h, LCT_GREY) ||
            lodepng::encode(augmented(fileprefix, BLU), blueGr, w, h, LCT_GREY);
 }
 
@@ -67,6 +69,7 @@ int Debayer::DebayerContainer::WriteColored(const char *filename, DebayeringAlgo
     std::vector<unsigned char> result;
     result.resize(3 * (width) * (height));
     int imOff, grOff;
+
     switch (alg) {
         case LINEAR:
             for (unsigned int i = 0; i < height; i++) {
@@ -79,7 +82,8 @@ int Debayer::DebayerContainer::WriteColored(const char *filename, DebayeringAlgo
                 }
             }
             break;
-        default:;
+        default:
+            break;
     }
 
     return lodepng::encode(filename, result, width, height, LCT_RGB);

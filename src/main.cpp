@@ -12,7 +12,6 @@ const char INPUT_FILE[] = "test_image/test.raw12";
 const char RESULT_CHANNELS[] = "results/Channel_";
 const char LINEAR_RESULT[] = "results/LinearDebayer.png";
 
-// Width and Height of the image to be processed
 const int WIDTH = 4096;
 const int HEIGHT = 3072;
 

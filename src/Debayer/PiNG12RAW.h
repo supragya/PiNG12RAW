@@ -50,4 +50,4 @@ namespace Debayer {
     };
 }
 
-#endif //PING12RAW_PING12RAW_H
+#endif
