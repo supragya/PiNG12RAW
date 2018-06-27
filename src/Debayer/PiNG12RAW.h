@@ -18,7 +18,7 @@
 
 namespace Debayer {
     enum DebayeringAlgorithm {
-        LINEAR
+        NEAREST
     };
 
     enum Channel {

@@ -28,7 +28,7 @@ int main() {
     container.WriteChannels(RESULT_CHANNELS);
 
     std::cout << "- Debayering LINEAR, image: " << LINEAR_RESULT << std::endl;
-    container.WriteColored(LINEAR_RESULT, Debayer::DebayeringAlgorithm::LINEAR);
+    container.WriteColored(LINEAR_RESULT, Debayer::DebayeringAlgorithm::NEAREST);
 
     std::cout << "[All operations done]" << std::endl;
 
