@@ -72,7 +72,7 @@ int Debayer::DebayerContainer::WriteColored(const char *filename, DebayeringAlgo
     int imOff, grOff;
 
     switch (alg) {
-        case LINEAR:
+        case NEAREST:
             for (unsigned int i = 0; i < height; i++) {
                 for (unsigned int j = 0; j < width; j++) {
                     imOff = 3 * (i * width + j);
