@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
+#include <conio.h>
 #include <vector>
 #include "LodePNG/lodepng.h"
 
