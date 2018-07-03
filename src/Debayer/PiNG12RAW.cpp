@@ -83,6 +83,40 @@ int Debayer::DebayerContainer::WriteColored(const char *filename, DebayeringAlgo
                 }
             }
             break;
+        case BILINEAR:
+            for(unsigned int i=0;i<height;i++) {
+                for(unsigned int j=0;j<width;j++) {
+                    imOff = 3 * (i * width + j );
+                    grOff = (i / 2) * width / 2 + (j / 2);
+                    width = width / 2;
+                    if( i == 0  || j == 0 || i == 4095 || j == 4095 ) {
+                        result[imOff + 0] = red_Gr[grOff];
+                        result[imOff + 1] = (grn1Gr[grOff] + grn2Gr[grOff]) / 2;
+                        result[imOff + 2] = blueGr[grOff];   
+                    }
+                    else if(i % 2 == 0 && j % 2 == 0) {
+                        result[imOff + 0] = red_Gr[grOff];
+                        result[imOff + 1] = (grn1Gr[grOff - 1] + grn1Gr[grOff + 1] + grn2Gr[grOff - width] + grn2Gr[grOff + width]) / 4;
+                        result[imOff + 2] = (blueGr[grOff - width - 1] + blueGr[grOff - width + 1] + blueGr[grOff + width - 1] + blueGr [grOff + width + 1] ) / 4;
+                    }
+                    else if(i % 2 != 0 && j % 2 != 0) {
+                        result[imOff + 0] = (red_Gr[grOff - width - 1] + red_Gr[grOff - width + 1] + red_Gr[grOff + width - 1] + red_Gr [grOff + width + 1] ) / 4;
+                        result[imOff + 1] = (grn2Gr[grOff - 1] + grn2Gr[grOff + 1] + grn1Gr[grOff - width] + grn1Gr[grOff + width]) / 4;
+                        result[imOff + 2] = blueGr[grOff];
+                    } 
+                    else if(i % 2 == 0 && j % 2 !=0) {
+                        result[imOff + 0] = ( red_Gr[grOff - 1]+red_Gr[grOff + 1] ) / 2;
+                        result[imOff + 1] = grn1Gr[grOff];
+                        result[imOff + 2] = ( blueGr[grOff - width] + blueGr[grOff + width] ) / 2;
+                    }
+                    else {
+                        result[imOff + 0] = ( red_Gr[grOff - width]+red_Gr[grOff + width] ) / 2;
+                        result[imOff + 1] = grn2Gr[grOff];
+                        result[imOff + 2] = ( blueGr[grOff - 1] + blueGr[grOff + 1] ) / 2;
+                    }
+                }
+            }
+            break;
         default:
             break;
     }
