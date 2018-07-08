@@ -11,6 +11,7 @@
 const char INPUT_FILE[] = "test_image/test.raw12";
 const char RESULT_CHANNELS[] = "results/Channel_";
 const char LINEAR_RESULT[] = "results/LinearDebayer.png";
+const char BILINEAR_RESULT[] = "results/BilinearDebayer.png";
 
 const int WIDTH = 4096;
 const int HEIGHT = 3072;
@@ -27,8 +28,11 @@ int main() {
     std::cout << "- Writing Bayer Channels: " << RESULT_CHANNELS << "<cnl>.png" << std::endl;
     container.WriteChannels(RESULT_CHANNELS);
 
-    std::cout << "- Debayering LINEAR, image: " << LINEAR_RESULT << std::endl;
-    container.WriteColored(LINEAR_RESULT, Debayer::DebayeringAlgorithm::LINEAR);
+    std::cout << "- Debayering NEAREST, image: " << LINEAR_RESULT << std::endl;
+    container.WriteColored(LINEAR_RESULT, Debayer::DebayeringAlgorithm::NEAREST);
+
+    std::cout << "- Debayering BILINEAR, image: " << BILINEAR_RESULT << std::endl;
+    container.WriteColored(BILINEAR_RESULT, Debayer::DebayeringAlgorithm::BILINEAR);
 
     std::cout << "[All operations done]" << std::endl;
 
