@@ -12,8 +12,8 @@ const char INPUT_FILE[] = "test_image/test.raw12";
 const char RESULT_CHANNELS[] = "results/Channel_";
 const char LINEAR_RESULT[] = "results/LinearDebayer.png";
 
-const int WIDTH = 4096;
-const int HEIGHT = 3072;
+const int WIDTH = 40;
+const int HEIGHT = 30;
 
 int main() {
     std::cout << "{PiNG12RAW working! - Supragya Raj}" << std::endl;
