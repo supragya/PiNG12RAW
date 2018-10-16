@@ -4,6 +4,8 @@ PiNG12RAW is a simple utility to separate RG/GB Bayer color channels to individu
 
 ### To build/make the C++ program
 
+Create a results folder in the PiNG12RAW directory:
+
 PiNG12RAW can be made to work easily using the following set of commands:
 ```
 make
