@@ -42,14 +42,14 @@ int Debayer::DebayerContainer::ComputeChannels() {
             row = row / 2;
             col = col / 2;
             iOff = row * (width / 2) + col;
-            red_Gr[iOff] = iBuf[rPtr];
+            red_Gr[iOff] = ((uint8_t) iBuf[rPtr] << 4 | ((uint8_t) iBuf[rPtr + 1] & 0xF0) >> 4);
             grn1Gr[iOff] = (((uint8_t) iBuf[rPtr + 1] & 0x0F) << 4 |
                             (uint8_t) iBuf[rPtr + 2] >> 4);
         } else {
             row = row / 2;
             col = col / 2;
             iOff = row * (width / 2) + col;
-            grn2Gr[iOff] = iBuf[rPtr];
+            grn2Gr[iOff] = ((uint8_t) iBuf[rPtr] << 4 | ((uint8_t) iBuf[rPtr + 1] & 0xF0) >> 4);
             blueGr[iOff] = (((uint8_t) iBuf[rPtr + 1] & 0x0F) << 4 |
                             (uint8_t) iBuf[rPtr + 2] >> 4);
         }
